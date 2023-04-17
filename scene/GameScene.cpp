@@ -25,7 +25,6 @@ void GameScene::Initialize() {
 	worldTransform_.Initialize();
 	viewProjection_.Initialize();
 	audioHandle_ = audio_->LoadWave("fanfare.wav");
-	//audio_->PlayWave(audioHandle_);
 	voiceHandle_ = audio_->PlayWave(audioHandle_, true);
 
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection_);
