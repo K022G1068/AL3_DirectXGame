@@ -68,21 +68,47 @@ void Player::Update()
 		bullet_->Update();
 	}
 
+	for (PlayerBullet* bullet : bullets_ ) {
+		bullet->Update();
+	}
+
 }
 void Player::Attack() 
 { 
 	if (input_->TriggerKey(DIK_SPACE))
 	{
 		PlayerBullet* newBullet = new PlayerBullet();
+		/*if (bullet_)
+		{
+			delete bullet_;
+			bullet_ = nullptr;
+		}*/
 		newBullet->Initialize(model_, worldTransform_.translation_);
-		bullet_ = newBullet;
+		//bullet_ = newBullet;
+		bullets_.push_back(newBullet);
 	}
 
 }
 void Player::Draw(ViewProjection& viewProjection) 
 {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
-	if (bullet_) {
+	/*if (bullet_) {
 		bullet_->Draw(viewProjection);
+	}*/
+	for (PlayerBullet* bullet : bullets_)
+	{
+		bullet->Draw(viewProjection);
 	}
+}
+
+Player::~Player() { 
+	/*if (bullet_) {
+		delete bullet_;
+		bullet_ = nullptr;
+	}*/
+	for (PlayerBullet* bullet : bullets_) {
+		delete bullet;
+		bullet = nullptr;
+	}
+	
 }

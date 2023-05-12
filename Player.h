@@ -5,6 +5,7 @@
 #include"Input.h"
 #include"ImGuiManager.h"
 #include"PlayerBullet.h"
+#include<list>
 class Player {
 public:
 	/// <summary>
@@ -24,10 +25,13 @@ public:
 	/// </summary>
 	void Draw(ViewProjection& viewProjection);
 
+	~Player();
+
 private:
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 	Input* input_ = nullptr;
 	PlayerBullet* bullet_ = nullptr;
+	std::list<PlayerBullet*> bullets_;
 };
