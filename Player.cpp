@@ -29,6 +29,13 @@ void Player::Update()
 		move.y += kCharacterSpeed;
 	}
 
+	const float kRotSpeed = 0.02f;
+	if (input_->PushKey(DIK_A)) {
+		worldTransform_.rotation_.x += kRotSpeed;
+	} else if (input_->PushKey(DIK_D)) {
+		worldTransform_.rotation_.x -= kRotSpeed;
+	}
+
 	const float kMoveLimitX = 20.0f;
 	const float kMoveLimitY = 20.0f;
 
@@ -54,8 +61,28 @@ void Player::Update()
 	ImGui::SliderFloat3("PlayerPos", sliderValue, -20.0f, 20.0f);
 	worldTransform_.translation_ = {sliderValue[0], sliderValue[1], sliderValue[2]};
 	ImGui::End();
+
+	Attack();
+	if (bullet_)
+	{
+		bullet_->Update();
+	}
+
+}
+void Player::Attack() 
+{ 
+	if (input_->TriggerKey(DIK_SPACE))
+	{
+		PlayerBullet* newBullet = new PlayerBullet();
+		newBullet->Initialize(model_, worldTransform_.translation_);
+		bullet_ = newBullet;
+	}
+
 }
 void Player::Draw(ViewProjection& viewProjection) 
 {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+	if (bullet_) {
+		bullet_->Draw(viewProjection);
+	}
 }

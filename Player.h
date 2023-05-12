@@ -4,6 +4,7 @@
 #include"ViewProjection.h"
 #include"Input.h"
 #include"ImGuiManager.h"
+#include"PlayerBullet.h"
 class Player {
 public:
 	/// <summary>
@@ -17,6 +18,10 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
+	void Attack();
+	/// <summary>
+	/// 
+	/// </summary>
 	void Draw(ViewProjection& viewProjection);
 
 private:
@@ -24,4 +29,5 @@ private:
 	Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 	Input* input_ = nullptr;
+	PlayerBullet* bullet_ = nullptr;
 };
