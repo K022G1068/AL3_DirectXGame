@@ -5,6 +5,7 @@
 #include"Input.h"
 #include"ImGuiManager.h"
 #include"PlayerBullet.h"
+#include"MathUtility.h"
 #include<list>
 class Player {
 public:
@@ -24,6 +25,8 @@ public:
 	/// 
 	/// </summary>
 	void Draw(ViewProjection& viewProjection);
+
+	
 
 	~Player();
 

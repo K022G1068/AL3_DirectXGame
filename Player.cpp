@@ -11,16 +11,15 @@ void Player::Initialize(Model* model, uint32_t textureHandle)
 	input_ = Input::GetInstance();
 }
 
-void Player::Update() 
-{ 
+void Player::Update() {
 	Vector3 move = {0, 0, 0};
 
 	const float kCharacterSpeed = 0.2f;
 
 	if (input_->PushKey(DIK_A)) {
-		move.x -= kCharacterSpeed;
+		// move.x -= kCharacterSpeed;
 	} else if (input_->PushKey(DIK_D)) {
-		move.x += kCharacterSpeed;
+		// move.x += kCharacterSpeed;
 	}
 
 	if (input_->PushKey(DIK_S)) {
@@ -31,9 +30,9 @@ void Player::Update()
 
 	const float kRotSpeed = 0.02f;
 	if (input_->PushKey(DIK_A)) {
-		worldTransform_.rotation_.x += kRotSpeed;
+		worldTransform_.rotation_.y += kRotSpeed;
 	} else if (input_->PushKey(DIK_D)) {
-		worldTransform_.rotation_.x -= kRotSpeed;
+		worldTransform_.rotation_.y -= kRotSpeed;
 	}
 
 	const float kMoveLimitX = 20.0f;
@@ -63,15 +62,21 @@ void Player::Update()
 	ImGui::End();
 
 	Attack();
-	if (bullet_)
-	{
+	if (bullet_) {
 		bullet_->Update();
 	}
 
-	for (PlayerBullet* bullet : bullets_ ) {
+	for (PlayerBullet* bullet : bullets_) {
 		bullet->Update();
 	}
 
+	bullets_.remove_if([](PlayerBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
 }
 void Player::Attack() 
 { 
@@ -80,6 +85,8 @@ void Player::Attack()
 		PlayerBullet* newBullet = new PlayerBullet();
 		const float kBulletSpeed = 1.0f;
 		Vector3 velocity(0, 0, kBulletSpeed);
+
+		velocity = TransformNormal(velocity, worldTransform_.matWorld_);
 		/*if (bullet_)
 		{
 			delete bullet_;
