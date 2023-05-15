@@ -78,12 +78,14 @@ void Player::Attack()
 	if (input_->TriggerKey(DIK_SPACE))
 	{
 		PlayerBullet* newBullet = new PlayerBullet();
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity(0, 0, kBulletSpeed);
 		/*if (bullet_)
 		{
 			delete bullet_;
 			bullet_ = nullptr;
 		}*/
-		newBullet->Initialize(model_, worldTransform_.translation_);
+		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 		//bullet_ = newBullet;
 		bullets_.push_back(newBullet);
 	}
