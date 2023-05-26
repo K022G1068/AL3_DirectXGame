@@ -2,6 +2,8 @@
 #include"WorldTransform.h"
 #include"Model.h"
 #include<assert.h>
+#include"EnemyBullet.h"
+#include"Vector3.h"
 
 enum class Phase {
 	Approach,
@@ -59,6 +61,16 @@ public:
 	/// 
 	/// </summary>
 	void ChangeState(BaseEnemyState* enemyState);
+	/// <summary>
+	/// 
+	/// </summary>
+	void Fire();
+	/// <summary>
+	/// 
+	/// </summary>
+	void ApproachInitialize();
+	int32_t GetFireTimer() { return fireTimer; };
+	void SetFireTimer(int32_t num) { fireTimer = num; };
 
 private:
 	Phase phase_ = Phase::Approach;
@@ -67,5 +79,11 @@ private:
 	uint32_t textureHandler_ = 0;
 
 	BaseEnemyState* state_;
-	
+	EnemyBullet* bullet_ = nullptr;
+	//std::unique_ptr<EnemyBullet> bullet_;
+	std::list<EnemyBullet*> bullets_;
+	int32_t fireTimer = 0;
+
+public:
+	static const int kFireInterval = 60;
 };
