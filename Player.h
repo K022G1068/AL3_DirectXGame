@@ -26,7 +26,7 @@ public:
 	/// </summary>
 	void Draw(ViewProjection& viewProjection);
 
-	
+	Vector3 GetWorldPosition();
 
 	~Player();
 

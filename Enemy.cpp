@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "Player.h"
 #include <MathUtility.h>
 
 void Enemy::Initialize(Model* model, const Vector3& position) 
@@ -62,10 +63,24 @@ void Enemy::ChangeState(BaseEnemyState* enemyState)
 
 void Enemy::Fire() 
 {
-	//bullet_ = new EnemyBullet;
-	EnemyBullet* newBullet = new EnemyBullet();
+	assert(player_);
+	Vector3 distance;
+	distance.x = GetWorldPosition().x - player_->GetWorldPosition().x;
+	distance.y = GetWorldPosition().y - player_->GetWorldPosition().y;
+	distance.z = GetWorldPosition().z - player_->GetWorldPosition().z;
+
+	float lenght = sqrtf(powf(distance.x, 2.f) + powf(distance.y,2.f) + powf(distance.z,2.f));
+
+	distance.x /= lenght; 
+	distance.y /= lenght; 
+	distance.z /= lenght; 
+
 	const float kBulletSpeed = -1.0f;
-	Vector3 velocity(0, 0, kBulletSpeed);
+	Vector3 velocity(distance.x * kBulletSpeed, distance.y * kBulletSpeed, distance.z * kBulletSpeed);
+
+
+	EnemyBullet* newBullet = new EnemyBullet();
+	
 	velocity = TransformNormal(velocity, worldTransform_.matWorld_);
 	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 	bullets_.push_back(newBullet);
@@ -73,7 +88,15 @@ void Enemy::Fire()
 
 void Enemy::ApproachInitialize() 
 {
-	fireTimer = kFireInterval;
+	fireTimer = kFireInterval; }
+
+Vector3 Enemy::GetWorldPosition() {
+	Vector3 worldPos;
+	worldPos.x = worldTransform_.translation_.x;
+	worldPos.y = worldTransform_.translation_.y;
+	worldPos.z = worldTransform_.translation_.z;
+
+	return worldPos;
 }
 
 void EnemyStateApproach::Update(Enemy* pEnemy)

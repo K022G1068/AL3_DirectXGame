@@ -29,6 +29,7 @@ void GameScene::Initialize() {
 	enemy_->Initialize(model_, {0,3,50});
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
+	enemy_->SetPlayer(player_);
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 }
