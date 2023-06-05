@@ -75,6 +75,20 @@ public:
 	void SetPlayer(Player* player) { player_ = player; };
 
 	Vector3 GetWorldPosition();
+	/// <summary>
+	/// 
+	/// </summary>
+	void OnCollision();
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	const std::list<EnemyBullet*>& GetBullets() { return bullets_; };
+	/// <summary>
+	///
+	/// </summary>
+	/// <returns></returns>
+	const float GetRadius() { return radius_; };
 
 private:
 	Phase phase_ = Phase::Approach;
@@ -87,7 +101,7 @@ private:
 	//std::unique_ptr<EnemyBullet> bullet_;
 	std::list<EnemyBullet*> bullets_;
 	int32_t fireTimer = 0;
-
+	const float radius_ = 1.0f;
 	Player* player_ = nullptr;
 
 

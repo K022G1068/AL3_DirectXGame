@@ -19,11 +19,21 @@ public:
 	/// </summary>
 	void Draw(const ViewProjection& viewProjection_);
 	/// <summary>
+	///
+	/// </summary>
+	/// <returns></returns>
+	const float GetRadius() { return radius_; };
+	Vector3 GetWorldPosition();
+	/// <summary>
+	///
+	/// </summary>
+	void OnCollision() { isDead_ = true; };
+	/// <summary>
 	/// 
 	/// </summary>
 	/// <returns></returns>
 	bool IsDead() { return isDead_; };
-
+	
 private:
 	Model* model_ = nullptr;
 	WorldTransform worldTransform_;
@@ -32,4 +42,5 @@ private:
 	static const int32_t kLifeTime = 60 * 5;
 	int32_t deathTimer_ = kLifeTime;
 	bool isDead_ = false;
+	const float radius_ = 1.0f;
 };

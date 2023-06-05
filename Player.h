@@ -25,10 +25,29 @@ public:
 	/// 
 	/// </summary>
 	void Draw(ViewProjection& viewProjection);
-
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
 	Vector3 GetWorldPosition();
-
+	/// <summary>
+	/// 
+	/// </summary>
 	~Player();
+	/// <summary>
+	/// 
+	/// </summary>
+	void OnCollision();
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	const std::list<PlayerBullet*>& GetBullets() { return bullets_; };
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	const float GetRadius() { return radius_; };
 
 private:
 	WorldTransform worldTransform_;
@@ -37,4 +56,5 @@ private:
 	Input* input_ = nullptr;
 	PlayerBullet* bullet_ = nullptr;
 	std::list<PlayerBullet*> bullets_;
+	const float radius_ = 1.0f;
 };

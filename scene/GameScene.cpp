@@ -11,6 +11,8 @@ GameScene::~GameScene() {
 	delete player_;
 	delete debugCamera_;
 	delete enemy_;
+	delete modelSkydome_;
+	delete skydome_;
 }
 
 void GameScene::Initialize() {
@@ -28,7 +30,9 @@ void GameScene::Initialize() {
 	enemy_ = new Enemy();
 	enemy_->Initialize(model_, {0,3,50});
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
-
+	skydome_ = new Skydome();
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
+	skydome_->Initialize(modelSkydome_);
 	enemy_->SetPlayer(player_);
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
@@ -53,6 +57,8 @@ void GameScene::Update() {
 	} else {
 		viewProjection_.UpdateMatrix();
 	}
+	skydome_->Update();
+	CheckAllCollisions();
 }
 
 void GameScene::Draw() {
@@ -85,6 +91,8 @@ void GameScene::Draw() {
 	if (enemy_) {
 		enemy_->Draw(viewProjection_);
 	}
+
+	skydome_->Draw(viewProjection_);
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
@@ -100,4 +108,57 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void GameScene::CheckAllCollisions() 
+{
+	Vector3 posA, posB;
+	
+	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
+	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
+
+	#pragma region player and enemy bullet
+	posA = player_->GetWorldPosition();
+	for (EnemyBullet* bullet : enemyBullets)
+	{
+		posB = bullet->GetWorldPosition();
+		float length = sqrtf(powf(posA.x - posB.x, 2.0f) + powf(posA.y - posB.y, 2.0f) + powf(posA.z - posB.z, 2.0f));
+		if (length <= player_->GetRadius() + bullet->GetRadius())
+		{
+			bullet->OnCollision();
+			//player_->OnCollision();
+		}
+	}
+	#pragma endregion
+	
+	#pragma region player bullet and enemy
+	posA = enemy_->GetWorldPosition();
+	for (PlayerBullet* bullet : playerBullets) {
+		posB = bullet->GetWorldPosition();
+		float length = sqrtf(
+		    powf(posA.x - posB.x, 2.0f) + powf(posA.y - posB.y, 2.0f) +
+		    powf(posA.z - posB.z, 2.0f));
+		if (length <= enemy_->GetRadius() + bullet->GetRadius()) {
+			bullet->OnCollision();
+			//enemy_->OnCollision();
+		}
+	}
+	#pragma endregion
+	
+	#pragma region player bullet and enemy bullet
+	for (EnemyBullet* e_bullet : enemyBullets) {
+		posB = e_bullet->GetWorldPosition();
+		for (PlayerBullet* p_bullet : playerBullets) {
+			posA = p_bullet->GetWorldPosition();
+			float length = sqrtf(
+			    powf(posA.x - posB.x, 2.0f) + powf(posA.y - posB.y, 2.0f) +
+			    powf(posA.z - posB.z, 2.0f));
+			if (length <= e_bullet->GetRadius() + p_bullet->GetRadius()) {
+				e_bullet->OnCollision();
+				p_bullet->OnCollision();
+			}
+		}
+		
+	}
+	#pragma endregion
 }
