@@ -1,55 +1,31 @@
 #include "Player.h"
 #include <assert.h>
 
-void Player::Initialize(Model* model, uint32_t textureHandle) 
-{ 
+void Player::Initialize(Model* model, uint32_t textureHandle, Vector3& playerPosition) { 
 	assert(model);
 
 	model_ = model;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
+	worldTransform_.translation_.x += playerPosition.x;
+	worldTransform_.translation_.y += playerPosition.y;
+	worldTransform_.translation_.z += playerPosition.z;
 	input_ = Input::GetInstance();
 }
 
 void Player::Update() {
-	Vector3 move = {0, 0, 0};
+	
 
-	const float kCharacterSpeed = 0.2f;
+	//worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
+	//worldTransform_.translation_.x = min(worldTransform_.translation_.x, kMoveLimitX);
+	//worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
+	//worldTransform_.translation_.y = min(worldTransform_.translation_.y, kMoveLimitY);
 
-	if (input_->PushKey(DIK_A)) {
-		move.x -= kCharacterSpeed;
-	} else if (input_->PushKey(DIK_D)) {
-		move.x += kCharacterSpeed;
-	}
+	//worldTransform_.translation_.x += move.x;
+	//worldTransform_.translation_.y += move.y;
+	//worldTransform_.translation_.z += move.z;
 
-	if (input_->PushKey(DIK_S)) {
-		move.y -= kCharacterSpeed;
-	} else if (input_->PushKey(DIK_W)) {
-		move.y += kCharacterSpeed;
-	}
-
-	const float kRotSpeed = 0.02f;
-	if (input_->PushKey(DIK_Q)) {
-		worldTransform_.rotation_.y -= kRotSpeed;
-	} else if (input_->PushKey(DIK_E)) {
-		worldTransform_.rotation_.y += kRotSpeed;
-	}
-
-	const float kMoveLimitX = 20.0f;
-	const float kMoveLimitY = 20.0f;
-
-	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
-	worldTransform_.translation_.x = min(worldTransform_.translation_.x, kMoveLimitX);
-	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
-	worldTransform_.translation_.y = min(worldTransform_.translation_.y, kMoveLimitY);
-
-	worldTransform_.translation_.x += move.x;
-	worldTransform_.translation_.y += move.y;
-	worldTransform_.translation_.z += move.z;
-
-	worldTransform_.matWorld_ = MakeAffineMatrix(
-	    worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_);
-	worldTransform_.TransferMatrix();
+	worldTransform_.UpdateMatrix();
 
 	ImGui::SetNextWindowPos({10, 10});
 	ImGui::SetNextWindowSize({300, 100});
@@ -112,11 +88,26 @@ void Player::Draw(ViewProjection& viewProjection)
 
 Vector3 Player::GetWorldPosition() { 
 	Vector3 worldPos;
-	worldPos.x = worldTransform_.translation_.x;
-	worldPos.y = worldTransform_.translation_.y;
-	worldPos.z = worldTransform_.translation_.z;
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
 	
 	return worldPos; 
+}
+
+Vector3 Player::GetWorldRotation() 
+{
+	Vector3 worldRot;
+	worldRot.x = worldTransform_.rotation_.x;
+	worldRot.y = worldTransform_.rotation_.y;
+	worldRot.z = worldTransform_.rotation_.z;
+
+	return worldRot;
+}
+
+void Player::SetParent(const WorldTransform* parent) 
+{ 
+	worldTransform_.parent_ = parent; 
 }
 
 Player::~Player() { 

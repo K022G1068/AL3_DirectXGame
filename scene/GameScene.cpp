@@ -13,6 +13,7 @@ GameScene::~GameScene() {
 	delete enemy_;
 	delete modelSkydome_;
 	delete skydome_;
+	delete railCamera_;
 }
 
 void GameScene::Initialize() {
@@ -25,8 +26,13 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 	worldTransform_.Initialize();
 	viewProjection_.Initialize();
+
+	//Player Component
 	player_ = new Player();
-	player_->Initialize(model_, textureHandle_);
+	Vector3 playerPosition(0, -5.0f, 50.0f);
+	Vector3 railPosition(0, 0, -50.0f);
+	player_->Initialize(model_, textureHandle_, playerPosition);
+
 	enemy_ = new Enemy();
 	enemy_->Initialize(model_, {0,3,50});
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
@@ -34,6 +40,11 @@ void GameScene::Initialize() {
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 	skydome_->Initialize(modelSkydome_);
 	enemy_->SetPlayer(player_);
+
+	//Rail camera
+	railCamera_ = new RailCamera();
+	railCamera_->Initialize(railPosition, {0,0,0}, viewProjection_);
+	player_->SetParent(&railCamera_->GetWorldTransform());
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 }
@@ -44,8 +55,12 @@ void GameScene::Update() {
 		enemy_->Update();
 	}
 #ifdef _DEBUG
-	if (input_->TriggerKey(DIK_R)) {
+	if (input_->TriggerKey(DIK_R) && isDebugCameraActive_ == false) {
 		isDebugCameraActive_ = true;
+	}
+	else if (isDebugCameraActive_ && input_->TriggerKey(DIK_R))
+	{
+		isDebugCameraActive_ = false;
 	}
 #endif // _DEBUG
 
@@ -54,10 +69,16 @@ void GameScene::Update() {
 		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
 		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
 		viewProjection_.TransferMatrix();
+		
 	} else {
-		viewProjection_.UpdateMatrix();
+		//viewProjection_.UpdateMatrix();
+		railCamera_->Update();
+		viewProjection_.matView = railCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = railCamera_->GetViewProjection().matProjection;
+		viewProjection_.TransferMatrix();
 	}
 	skydome_->Update();
+	
 	CheckAllCollisions();
 }
 
@@ -93,6 +114,7 @@ void GameScene::Draw() {
 	}
 
 	skydome_->Draw(viewProjection_);
+	railCamera_->DrawSpline();
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion

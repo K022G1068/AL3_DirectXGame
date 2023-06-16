@@ -12,7 +12,7 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
-	void Initialize(Model* model, uint32_t textureHandle);
+	void Initialize(Model* model, uint32_t textureHandle, Vector3& playerPosition);
 	/// <summary>
 	/// 
 	/// </summary>
@@ -30,6 +30,10 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	Vector3 GetWorldPosition();
+
+	Vector3 GetWorldRotation();
+
+	void SetParent(const WorldTransform* parent);
 	/// <summary>
 	/// 
 	/// </summary>
