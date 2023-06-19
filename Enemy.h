@@ -5,6 +5,7 @@
 #include"EnemyBullet.h"
 #include"Vector3.h"
 
+
 enum class Phase {
 	Approach,
 	Leave,
@@ -12,6 +13,7 @@ enum class Phase {
 
 class Enemy;
 class Player;
+class GameScene;
 class BaseEnemyState {
 public:
 	virtual void Update(Enemy* pEnemy) = 0;
@@ -73,7 +75,7 @@ public:
 	void SetFireTimer(int32_t num) { fireTimer = num; };
 
 	void SetPlayer(Player* player) { player_ = player; };
-
+	bool IsDead() { return IsDead_; };
 	Vector3 GetWorldPosition();
 	/// <summary>
 	/// 
@@ -83,12 +85,16 @@ public:
 	/// 
 	/// </summary>
 	/// <returns></returns>
-	const std::list<EnemyBullet*>& GetBullets() { return bullets_; };
+	//const std::list<EnemyBullet*>& GetBullets() { return bullets_; };
 	/// <summary>
 	///
 	/// </summary>
 	/// <returns></returns>
 	const float GetRadius() { return radius_; };
+	/// <summary>
+	/// 
+	/// </summary>
+	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; };
 
 private:
 	Phase phase_ = Phase::Approach;
@@ -99,12 +105,17 @@ private:
 	BaseEnemyState* state_;
 	EnemyBullet* bullet_ = nullptr;
 	//std::unique_ptr<EnemyBullet> bullet_;
-	std::list<EnemyBullet*> bullets_;
+	
 	int32_t fireTimer = 0;
 	const float radius_ = 1.0f;
 	Player* player_ = nullptr;
+	GameScene* gameScene_ = nullptr;
 
+	bool IsDead_;
 
-public:
+	
+	
+public:	
 	static const int kFireInterval = 60;
+	int deathTimer_ = 300;
 };

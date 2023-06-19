@@ -1,5 +1,6 @@
 #include "Enemy.h"
 #include "Player.h"
+#include"GameScene.h"
 #include <MathUtility.h>
 
 void Enemy::Initialize(Model* model, const Vector3& position) 
@@ -20,27 +21,16 @@ Enemy::Enemy()
 Enemy::~Enemy() 
 { 
 	delete state_; 
-	for (EnemyBullet* bullet : bullets_) {
-		delete bullet;
-		bullet = nullptr;
-	}
+	
 }
 
 void Enemy::Update() 
 { 
 	state_->Update(this);
-
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Update();
+	if (--deathTimer_ <= 0) {
+		IsDead_ = true;
 	}
-
-	bullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
-		}
-		return false;
-	});
+	
 
 	worldTransform_.UpdateMatrix(); 
 }
@@ -48,11 +38,7 @@ void Enemy::Update()
 void Enemy::Draw(const ViewProjection& viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandler_);
 
-	for (EnemyBullet* bullet : bullets_)
-	{
-		bullet->Draw(viewProjection);
-	}
-
+	
 }
 
 void Enemy::ChangeState(BaseEnemyState* enemyState) 
@@ -83,7 +69,7 @@ void Enemy::Fire()
 	
 	velocity = TransformNormal(velocity, worldTransform_.matWorld_);
 	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
-	bullets_.push_back(newBullet);
+	gameScene_->AddEnemyBullet(newBullet);
 }
 
 void Enemy::ApproachInitialize() 
@@ -98,6 +84,7 @@ Vector3 Enemy::GetWorldPosition() {
 
 	return worldPos;
 }
+
 
 void EnemyStateApproach::Update(Enemy* pEnemy)
 {
@@ -127,4 +114,5 @@ void EnemyStateLeave::Update(Enemy* pEnemy)
 	if (pEnemy->getPos().z > 70.0f) {
 		pEnemy->ChangeState(new EnemyStateApproach);
 	}
+	pEnemy->deathTimer_--;
 }
