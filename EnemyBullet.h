@@ -34,6 +34,8 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	bool IsDead() { return isDead_; };
+
+	void SetPlayer(Player* player) { player_ = player; };
 	
 private:
 	Model* model_ = nullptr;
@@ -44,4 +46,5 @@ private:
 	int32_t deathTimer_ = kLifeTime;
 	bool isDead_ = false;
 	const float radius_ = 1.0f;
+	Player* player_ = nullptr;
 };

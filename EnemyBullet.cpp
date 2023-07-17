@@ -1,4 +1,6 @@
 #include "EnemyBullet.h"
+#include "Player.h"
+
 
 void EnemyBullet::Initialize(Model* model, const Vector3& pos, const Vector3& velocity) 
 { 
@@ -25,6 +27,9 @@ void EnemyBullet::Update()
 	if (--deathTimer_ <= 0) {
 		isDead_ = true;
 	}
+	
+	Vector3 toPlayer = player_->GetWorldPosition();
+
 	worldTransform_.translation_.x += velocity_.x;
 	worldTransform_.translation_.y += velocity_.y;
 	worldTransform_.translation_.z += velocity_.z;

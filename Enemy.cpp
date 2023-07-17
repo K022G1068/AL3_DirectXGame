@@ -82,6 +82,7 @@ void Enemy::Fire()
 
 
 	EnemyBullet* newBullet = new EnemyBullet();
+	newBullet->SetPlayer(player_);
 	
 	velocity = TransformNormal(velocity, worldTransform_.matWorld_);
 	newBullet->Initialize(model_, worldTransform_.translation_, velocity);

@@ -233,7 +233,9 @@ void GameScene::CheckAllCollisions()
 }
 
 void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) 
-{ bullets_.push_back(enemyBullet); }
+{ 
+	bullets_.push_back(enemyBullet);
+}
 
 void GameScene::AddEnemy(Vector3 pos) 
 { 
