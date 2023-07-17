@@ -102,6 +102,8 @@ public:
 	void Reset();
 
 	void InitializeAttack();
+
+	void ClearList() { timedCalls_.clear(); };
 	
 
 private:

@@ -110,6 +110,7 @@ void EnemyStateApproach::Update(Enemy* pEnemy)
 	//pEnemy->SetFireTimer(pEnemy->GetFireTimer() - 1);
 	pEnemy->setPos(move);
 	if (pEnemy->getPos().z < -70.0f) {
+		pEnemy->ClearList();
 		pEnemy->ChangeState(new EnemyStateLeave);
 	}
 	
