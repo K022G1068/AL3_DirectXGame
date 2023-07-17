@@ -3,6 +3,7 @@
 #include"WorldTransform.h"
 #include"ViewProjection.h"
 #include<assert.h>
+#include"MathUtility.h"
 
 class EnemyBullet {
 public:

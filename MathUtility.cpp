@@ -205,3 +205,25 @@ Vector3 Transform(Vector3 vector, Matrix4x4 matrix) {
 	result.z /= w;
 	return result;
 }
+
+float Dot(const Vector3& v1, const Vector3& v2) { return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z; }
+
+float Length(const Vector3& v) { return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z); }
+
+
+Vector3 Project(const Vector3& v1, const Vector3& v2) {
+	Vector3 result = {};
+	float length = Dot(v2, v2);
+	float dot = Dot(v1, v2);
+	return Multiply(dot / length, v2);
+}
+
+
+Vector3 Multiply(const float& f, const Vector3& v) {
+	Vector3 result;
+	result.x = v.x * f;
+	result.y = v.y * f;
+	result.z = v.z * f;
+
+	return result;
+}

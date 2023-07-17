@@ -7,7 +7,17 @@ void EnemyBullet::Initialize(Model* model, const Vector3& pos, const Vector3& ve
 	textureHandler_ = TextureManager::Load("sample.png");
 	model_ = model;
 	worldTransform_.translation_ = pos;
+	worldTransform_.scale_.x = 0.5f;
+	worldTransform_.scale_.y = 0.5f;
+	worldTransform_.scale_.z = 3.0f;
 	velocity_ = velocity;
+	worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
+	float tangentLine = Length({
+	    velocity_.x,
+	    0.0f,
+	    velocity_.z,
+	});
+	worldTransform_.rotation_.x = std::atan2(-velocity_.y, tangentLine);
 }
 
 void EnemyBullet::Update() 
