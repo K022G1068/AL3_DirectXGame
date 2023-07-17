@@ -4,6 +4,7 @@
 #include<assert.h>
 #include"EnemyBullet.h"
 #include"Vector3.h"
+#include"TimedCall.h"
 
 
 enum class Phase {
@@ -23,6 +24,8 @@ public:
 class EnemyStateApproach : public BaseEnemyState {
 public:
 	void Update(Enemy* pEnemy);
+	
+	
 };
 
 class EnemyStateLeave : public BaseEnemyState {
@@ -96,6 +99,11 @@ public:
 	/// </summary>
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; };
 
+	void Reset();
+
+	void InitializeAttack();
+	
+
 private:
 	Phase phase_ = Phase::Approach;
 	WorldTransform worldTransform_;
@@ -112,7 +120,7 @@ private:
 	GameScene* gameScene_ = nullptr;
 
 	bool IsDead_;
-
+	std::list<TimedCall*> timedCalls_;
 	
 	
 public:	

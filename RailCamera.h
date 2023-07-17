@@ -1,7 +1,6 @@
 #pragma once
 #include "ViewProjection.h"
 #include "WorldTransform.h"
-#include "MathUtility.h"
 #include "ImGuiManager.h"
 #include <vector>
 #include "PrimitiveDrawer.h"

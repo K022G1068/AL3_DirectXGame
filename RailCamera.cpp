@@ -168,7 +168,7 @@ void RailCamera::DrawSpline()
 		    point1, point2, {1.0f, 0.0f, 0.0f, 1.0f});
 	}
 
-	if (input_->PushKey(DIK_SPACE)) {
+	if (input_->PushKey(DIK_TAB)) {
 		Move2(pointsDrawing);
 	}
 }

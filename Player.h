@@ -7,6 +7,7 @@
 #include"PlayerBullet.h"
 #include"MathUtility.h"
 #include<list>
+#include"Sprite.h"
 class Player {
 public:
 	/// <summary>
@@ -16,7 +17,7 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
-	void Update();
+	void Update(ViewProjection& viewProjection);
 	/// <summary>
 	/// 
 	/// </summary>
@@ -52,13 +53,25 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	const float GetRadius() { return radius_; };
+	/// <summary>
+	/// 
+	/// </summary>
+	void DrawUI();
+
+	Vector3 GetWorldTransform3DReticle();
 
 private:
 	WorldTransform worldTransform_;
+	WorldTransform worldTransform3DReticle_;
 	Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 	Input* input_ = nullptr;
 	PlayerBullet* bullet_ = nullptr;
 	std::list<PlayerBullet*> bullets_;
 	const float radius_ = 1.0f;
+
+	//Reticle
+	Sprite* sprite2DReticle_ = nullptr;
+	POINT mousePos_ = {0, 0};
+
 };

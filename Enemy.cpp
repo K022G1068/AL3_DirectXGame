@@ -10,7 +10,7 @@ void Enemy::Initialize(Model* model, const Vector3& position)
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	textureHandler_ = TextureManager::Load("white1x1.png");
-	ApproachInitialize();
+	//ApproachInitialize();
 }
 
 Enemy::Enemy() 
@@ -21,7 +21,10 @@ Enemy::Enemy()
 Enemy::~Enemy() 
 { 
 	delete state_; 
-	
+	for (TimedCall* time : timedCalls_) {
+		delete time;
+		//time = nullptr;
+	}
 }
 
 void Enemy::Update() 
@@ -30,7 +33,20 @@ void Enemy::Update()
 	if (--deathTimer_ <= 0) {
 		IsDead_ = true;
 	}
-	
+
+	timedCalls_.remove_if([](TimedCall* time) {
+		if (time->IsFinished()) {
+			delete time;
+			return true;
+		}
+		return false;
+	});
+
+	for (TimedCall* time : timedCalls_) {
+		time->Update();
+	}
+
+	//Reset();
 
 	worldTransform_.UpdateMatrix(); 
 }
@@ -72,9 +88,9 @@ void Enemy::Fire()
 	gameScene_->AddEnemyBullet(newBullet);
 }
 
-void Enemy::ApproachInitialize() 
-{
-	fireTimer = kFireInterval; }
+void Enemy::ApproachInitialize() {
+	Reset();
+}
 
 Vector3 Enemy::GetWorldPosition() {
 	Vector3 worldPos;
@@ -91,19 +107,21 @@ void EnemyStateApproach::Update(Enemy* pEnemy)
 	Vector3 move = pEnemy->getPos();
 	move.x += 0.1f;
 	move.z -= 0.5f;
-	pEnemy->SetFireTimer(pEnemy->GetFireTimer() - 1);
+	//pEnemy->SetFireTimer(pEnemy->GetFireTimer() - 1);
 	pEnemy->setPos(move);
 	if (pEnemy->getPos().z < -70.0f) {
 		pEnemy->ChangeState(new EnemyStateLeave);
 	}
-	if (pEnemy->GetFireTimer() <= 0)
-	{
-		pEnemy->Fire();
-		pEnemy->SetFireTimer(pEnemy->kFireInterval);
-	}
-
 	
 }
+
+void Enemy::Reset() {
+	Fire();
+	timedCalls_.push_back(new TimedCall(std::bind(&Enemy::Reset, this), kFireInterval));
+}
+
+void Enemy::InitializeAttack() 
+{ ApproachInitialize(); }
 
 void EnemyStateLeave::Update(Enemy* pEnemy) 
 {
@@ -113,6 +131,7 @@ void EnemyStateLeave::Update(Enemy* pEnemy)
 	pEnemy->setPos(move);
 	if (pEnemy->getPos().z > 70.0f) {
 		pEnemy->ChangeState(new EnemyStateApproach);
+		
 	}
 	pEnemy->deathTimer_--;
 }

@@ -39,7 +39,7 @@ void GameScene::Initialize() {
 	LoadEnemyPopData();
 	//Player Component
 	player_ = new Player();
-	Vector3 playerPosition(0, -5.0f, 50.0f);
+	Vector3 playerPosition(0, -5.0f, 20.0f);
 	Vector3 railPosition(0, 0, -50.0f);
 	player_->Initialize(model_, textureHandle_, playerPosition);
 	
@@ -61,7 +61,7 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	player_->Update();
+	player_->Update(viewProjection_);
 	for (Enemy* enemy : enemies_)
 	{
 		if (enemy) {
@@ -131,7 +131,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに背景スプライトの描画処理を追加できる
 	/// </summary>
-
+	
 	// スプライト描画後処理
 	Sprite::PostDraw();
 	// 深度バッファクリア
@@ -169,6 +169,7 @@ void GameScene::Draw() {
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
 	// スプライト描画後処理
+	player_->DrawUI();
 	Sprite::PostDraw();
 
 #pragma endregion
@@ -240,6 +241,7 @@ void GameScene::AddEnemy(Vector3 pos)
 	obj->Initialize(model_, pos);
 	obj->SetPlayer(player_);
 	obj->SetGameScene(this);
+	obj->InitializeAttack();
 
 	enemies_.push_back(obj);
 }
