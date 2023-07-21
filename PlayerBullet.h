@@ -4,7 +4,8 @@
 #include"ViewProjection.h"
 #include"WorldTransform.h"
 #include<cassert>
-class PlayerBullet {
+#include"Collider.h"
+class PlayerBullet : public Collider {
 public:
 	/// <summary>
 	/// 
@@ -32,13 +33,13 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
-	void OnCollision() { isDead_ = true; };
+	void OnCollision() override{ isDead_ = true; };
 	/// <summary>
 	///
 	/// </summary>
 	/// <returns></returns>
 	const float GetRadius() { return radius_; };
-	Vector3 GetWorldPosition();
+	Vector3 GetWorldPosition() override;
 	
 
 private:

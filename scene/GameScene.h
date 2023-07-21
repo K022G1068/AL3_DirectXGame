@@ -16,6 +16,7 @@
 #include "EnemyBullet.h"
 #include <sstream>
 #include <fstream>
+#include "Collider.h"
 
 /// <summary>
 /// ゲームシーン
@@ -64,6 +65,8 @@ public: // メンバ関数
 
 	//Update enemy state
 	void UpdateEnemyPopCommands();
+
+	void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
 
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;

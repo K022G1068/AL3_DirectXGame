@@ -193,6 +193,8 @@ Player::~Player() {
 	delete sprite2DReticle_;
 }
 
+void Player::OnCollision() {}
+
 void Player::DrawUI() 
 { 
 	sprite2DReticle_->Draw(); }

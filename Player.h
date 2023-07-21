@@ -8,7 +8,8 @@
 #include"MathUtility.h"
 #include<list>
 #include"Sprite.h"
-class Player {
+#include"Collider.h"
+class Player : public Collider{
 public:
 	/// <summary>
 	/// 
@@ -30,7 +31,7 @@ public:
 	/// 
 	/// </summary>
 	/// <returns></returns>
-	Vector3 GetWorldPosition();
+	Vector3 GetWorldPosition() override;
 
 	Vector3 GetWorldRotation();
 
@@ -42,7 +43,7 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
-	void OnCollision();
+	void OnCollision() override;
 	/// <summary>
 	/// 
 	/// </summary>
@@ -59,6 +60,7 @@ public:
 	void DrawUI();
 
 	Vector3 GetWorldTransform3DReticle();
+
 
 private:
 	WorldTransform worldTransform_;

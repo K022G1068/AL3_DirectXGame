@@ -177,38 +177,22 @@ void GameScene::Draw() {
 
 void GameScene::CheckAllCollisions() 
 {
-	Vector3 posA, posB;
-	
+
 	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
 	const std::list<EnemyBullet*>& enemyBullets = bullets_;
 
 	#pragma region player and enemy bullet
-	posA = player_->GetWorldPosition();
 	for (EnemyBullet* bullet : enemyBullets)
 	{
-		posB = bullet->GetWorldPosition();
-		float length = sqrtf(powf(posA.x - posB.x, 2.0f) + powf(posA.y - posB.y, 2.0f) + powf(posA.z - posB.z, 2.0f));
-		if (length <= player_->GetRadius() + bullet->GetRadius())
-		{
-			bullet->OnCollision();
-			//player_->OnCollision();
-		}
+		CheckCollisionPair(player_, bullet);
 	}
 	#pragma endregion
 	
 	#pragma region player bullet and enemy
 	for (Enemy* enemy : enemies_)
-	{
-		posA = enemy->GetWorldPosition();
+	{	
 		for (PlayerBullet* bullet : playerBullets) {
-			posB = bullet->GetWorldPosition();
-			float length = sqrtf(
-			    powf(posA.x - posB.x, 2.0f) + powf(posA.y - posB.y, 2.0f) +
-			    powf(posA.z - posB.z, 2.0f));
-			if (length <= enemy->GetRadius() + bullet->GetRadius()) {
-				bullet->OnCollision();
-				// enemy_->OnCollision();
-			}
+			CheckCollisionPair(enemy, bullet);
 		}
 	}
 	
@@ -216,16 +200,8 @@ void GameScene::CheckAllCollisions()
 	
 	#pragma region player bullet and enemy bullet
 	for (EnemyBullet* e_bullet : enemyBullets) {
-		posB = e_bullet->GetWorldPosition();
 		for (PlayerBullet* p_bullet : playerBullets) {
-			posA = p_bullet->GetWorldPosition();
-			float length = sqrtf(
-			    powf(posA.x - posB.x, 2.0f) + powf(posA.y - posB.y, 2.0f) +
-			    powf(posA.z - posB.z, 2.0f));
-			if (length <= e_bullet->GetRadius() + p_bullet->GetRadius()) {
-				e_bullet->OnCollision();
-				p_bullet->OnCollision();
-			}
+			CheckCollisionPair(e_bullet, p_bullet);
 		}
 		
 	}
@@ -313,5 +289,21 @@ void GameScene::UpdateEnemyPopCommands()
 	
 
 	
+}
+
+void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) 
+{	
+	Vector3 posA, posB;
+	posA = colliderA->GetWorldPosition();
+	posB = colliderB->GetWorldPosition();
+	float length = sqrtf(
+	    powf(posA.x - posB.x, 2.0f) + powf(posA.y - posB.y, 2.0f) + powf(posA.z - posB.z, 2.0f));
+
+	if (length < colliderA->GetRadius() + colliderB->GetRadius())
+	{
+		colliderA->OnCollision();
+		colliderB->OnCollision();
+	}
+
 }
 

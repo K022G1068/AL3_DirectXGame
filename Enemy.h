@@ -5,7 +5,7 @@
 #include"EnemyBullet.h"
 #include"Vector3.h"
 #include"TimedCall.h"
-
+#include"Collider.h"
 
 enum class Phase {
 	Approach,
@@ -33,7 +33,7 @@ public:
 	void Update(Enemy* pEnemy);
 };
 
-class Enemy {
+class Enemy : public Collider{
 public:
 	/// <summary>
 	/// 
@@ -79,11 +79,11 @@ public:
 
 	void SetPlayer(Player* player) { player_ = player; };
 	bool IsDead() { return IsDead_; };
-	Vector3 GetWorldPosition();
+	Vector3 GetWorldPosition() override;
 	/// <summary>
 	/// 
 	/// </summary>
-	void OnCollision();
+	void OnCollision() override;
 	/// <summary>
 	/// 
 	/// </summary>

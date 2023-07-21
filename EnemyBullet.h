@@ -4,9 +4,10 @@
 #include"ViewProjection.h"
 #include<assert.h>
 #include"MathUtility.h"
+#include"Collider.h"
 
 class Player;
-class EnemyBullet {
+class EnemyBullet : public Collider{
 public:
 	/// <summary>
 	/// 
@@ -25,11 +26,11 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	const float GetRadius() { return radius_; };
-	Vector3 GetWorldPosition();
+	Vector3 GetWorldPosition() override;
 	/// <summary>
 	///
 	/// </summary>
-	void OnCollision() { isDead_ = true; };
+	void OnCollision() override { isDead_ = true; };
 	/// <summary>
 	/// 
 	/// </summary>

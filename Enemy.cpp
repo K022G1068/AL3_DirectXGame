@@ -102,6 +102,8 @@ Vector3 Enemy::GetWorldPosition() {
 	return worldPos;
 }
 
+void Enemy::OnCollision() {}
+
 
 void EnemyStateApproach::Update(Enemy* pEnemy)
 {
