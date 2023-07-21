@@ -227,3 +227,12 @@ Vector3 Multiply(const float& f, const Vector3& v) {
 
 	return result;
 }
+
+Vector3 Lerp(Vector3 objPos, Vector3 targetPos, float time) { 
+	Vector3 result;
+	result.x = Lerp(objPos.x, targetPos.x, time);
+	result.y = Lerp(objPos.y, targetPos.y, time);
+	result.z = Lerp(objPos.z, targetPos.z, time);
+	
+	return result; 
+}

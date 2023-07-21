@@ -13,3 +13,4 @@ float Dot(const Vector3& v1, const Vector3& v2);
 float Length(const Vector3& v);
 Vector3 Project(const Vector3& v1, const Vector3& v2);
 Vector3 Multiply(const float& f, const Vector3& v);
+Vector3 Lerp(Vector3 objPos, Vector3 targetPos, float time);

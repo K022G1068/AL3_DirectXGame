@@ -234,6 +234,7 @@ void GameScene::CheckAllCollisions()
 
 void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) 
 { 
+	enemyBullet->SetPlayer(player_);
 	bullets_.push_back(enemyBullet);
 }
 

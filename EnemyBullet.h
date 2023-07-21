@@ -5,6 +5,7 @@
 #include<assert.h>
 #include"MathUtility.h"
 
+class Player;
 class EnemyBullet {
 public:
 	/// <summary>
@@ -47,4 +48,6 @@ private:
 	bool isDead_ = false;
 	const float radius_ = 1.0f;
 	Player* player_ = nullptr;
+	float t_frame = 0;
+	float max_frame = 120;
 };

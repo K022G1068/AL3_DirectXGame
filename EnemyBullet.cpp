@@ -24,15 +24,30 @@ void EnemyBullet::Initialize(Model* model, const Vector3& pos, const Vector3& ve
 
 void EnemyBullet::Update() 
 {
+	assert(player_);
 	if (--deathTimer_ <= 0) {
 		isDead_ = true;
 	}
 	
 	Vector3 toPlayer = player_->GetWorldPosition();
+	Vector3 n_toPlayer = Normalize(toPlayer);
+	Vector3 n_velocity = Normalize(velocity_);
+
+	velocity_ = Lerp(n_velocity, n_toPlayer, 1.0f) * 0.5f;
 
 	worldTransform_.translation_.x += velocity_.x;
 	worldTransform_.translation_.y += velocity_.y;
 	worldTransform_.translation_.z += velocity_.z;
+
+	worldTransform_.rotation_.y = std::atan2(velocity_.x, velocity_.z);
+	float tangentLine = Length({
+	    velocity_.x,
+	    0.0f,
+	    velocity_.z,
+	});
+	worldTransform_.rotation_.x = std::atan2(-velocity_.y, tangentLine);
+
+	
 	worldTransform_.UpdateMatrix();
 }
 
