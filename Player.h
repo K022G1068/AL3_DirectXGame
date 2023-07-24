@@ -9,6 +9,8 @@
 #include<list>
 #include"Sprite.h"
 #include"Collider.h"
+
+
 class Player : public Collider{
 public:
 	/// <summary>
@@ -71,7 +73,6 @@ private:
 	PlayerBullet* bullet_ = nullptr;
 	std::list<PlayerBullet*> bullets_;
 	const float radius_ = 1.0f;
-
 	//Reticle
 	Sprite* sprite2DReticle_ = nullptr;
 	POINT mousePos_ = {0, 0};

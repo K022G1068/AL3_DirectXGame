@@ -11,6 +11,8 @@ void Enemy::Initialize(Model* model, const Vector3& position)
 	worldTransform_.translation_ = position;
 	textureHandler_ = TextureManager::Load("white1x1.png");
 	//ApproachInitialize();
+	SetAttribute(kCollisionAttributeEnemy);
+	SetMaskAttribute(kCollisionAttributePlayer);
 }
 
 Enemy::Enemy() 

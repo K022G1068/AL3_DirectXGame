@@ -20,6 +20,8 @@ void EnemyBullet::Initialize(Model* model, const Vector3& pos, const Vector3& ve
 	    velocity_.z,
 	});
 	worldTransform_.rotation_.x = std::atan2(-velocity_.y, tangentLine);
+	SetAttribute(kCollisionAttributeEnemy);
+	SetMaskAttribute(kCollisionAttributePlayer);
 }
 
 void EnemyBullet::Update() 

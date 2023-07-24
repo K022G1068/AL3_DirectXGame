@@ -18,6 +18,8 @@ void Player::Initialize(Model* model, uint32_t textureHandle, Vector3& playerPos
 	    Vector2(640,360),
 	    Vector4(1, 1, 1, 1), Vector2(0.5f, 0.5f));
 	input_ = Input::GetInstance();
+	SetAttribute(kCollisionAttributePlayer);
+	SetMaskAttribute(kCollisionAttributeEnemy);
 }
 
 void Player::Update(ViewProjection& viewProjection) {
