@@ -1,12 +1,17 @@
 #pragma once
 #include"Vector3.h"
 #include"CollisionConfig.h"
+
+struct ColliderBox {
+	Vector3 min;
+	Vector3 max;
+};
 class Collider {
 private:
 	float radius_ = 1.0f;
 	uint32_t collisionAttribute_ = 0xffffffff;
 	uint32_t collisionMask_ = 0xffffffff;
-
+	ColliderBox colliderBox_;
 public:
 	float GetRadius() { return radius_; };
 	void SetRadius(float radius) {radius_ = radius;};
@@ -16,4 +21,6 @@ public:
 	void SetAttribute(uint32_t attribute) { collisionAttribute_ = attribute; };
 	uint32_t GetMaskAttribute() { return collisionMask_; };
 	void SetMaskAttribute(uint32_t attribute) { collisionMask_ = attribute; };
+	void SetBox(Vector3 &pos, Vector3 &scale);
+	ColliderBox GetBox() { return colliderBox_; };
 };

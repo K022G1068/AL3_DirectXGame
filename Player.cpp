@@ -1,5 +1,6 @@
 #include "Player.h"
 #include <assert.h>
+#include"GameScene.h"
 
 void Player::Initialize(Model* model, uint32_t textureHandle, Vector3& playerPosition) { 
 	assert(model);
@@ -34,17 +35,25 @@ void Player::Update(ViewProjection& viewProjection) {
 	//worldTransform_.translation_.y += move.y;
 	//worldTransform_.translation_.z += move.z;
 
-	worldTransform_.UpdateMatrix();
+	
 
-	ImGui::SetNextWindowPos({10, 10});
-	ImGui::SetNextWindowSize({300, 100});
-	ImGui::Begin("Debug1");
-	float sliderValue[3] = {
-	    worldTransform_.translation_.x, worldTransform_.translation_.y,
-	    worldTransform_.translation_.z};
-	ImGui::SliderFloat3("PlayerPos", sliderValue, -20.0f, 20.0f);
-	worldTransform_.translation_ = {sliderValue[0], sliderValue[1], sliderValue[2]};
-	ImGui::End();
+	//ImGui::SetNextWindowPos({10, 10});
+	//ImGui::SetNextWindowSize({300, 100});
+	//ImGui::Begin("Debug1");
+	//float sliderValue[3] = {
+	//    worldTransform_.translation_.x, worldTransform_.translation_.y,
+	//    worldTransform_.translation_.z};
+	//ImGui::SliderFloat3("PlayerPos", sliderValue, -20.0f, 20.0f);
+	//worldTransform_.translation_ = {sliderValue[0], sliderValue[1], sliderValue[2]};
+
+	//float sliderValue2[3] = {
+	//    worldTransform_.scale_.x, worldTransform_.scale_.y, worldTransform_.scale_.z};
+	//ImGui::SliderFloat3("PlayerScale", sliderValue2, -5.0f, 5.0f);
+	//worldTransform_.scale_ = {sliderValue2[0], sliderValue2[1], sliderValue2[2]};
+
+	////ImGui::Text("Min x = %f, y = %f z = %f", GetBox().min.x, GetBox().min.y, GetBox().min.z);
+	////ImGui::Text("max x = %f, y = %f z = %f", GetBox().max.x, GetBox().max.y, GetBox().max.z);
+	//ImGui::End();
 
 	Attack();
 	if (bullet_) {
@@ -119,16 +128,36 @@ void Player::Update(ViewProjection& viewProjection) {
 
 		const float kDistanceTestObject = 50.0f;
 		worldTransform3DReticle_.translation_ = posNear + mouseDirection * kDistanceTestObject;
-		
+		// Player mouse rotation
+		{
+			Vector3 rotation;
+			rotation.x =
+			    atan2f(worldTransform3DReticle_.translation_.y, worldTransform_.translation_.y);
+			rotation.y =
+			    atan2f(worldTransform3DReticle_.translation_.z, worldTransform_.translation_.z);
+			// rotation.z = atan2f(worldTransform_.translation_.x,
+			// worldTransform3DReticle_.translation_.x);
+
+			worldTransform_.rotation_.x = rotation.x;
+			worldTransform_.rotation_.y = rotation.y;
+		}
+
 		worldTransform3DReticle_.UpdateMatrix();
 	}
+	Move();
+	Vector3 pos = GetWorldPosition();
+	SetBox(pos, worldTransform_.scale_);
+
+	//Bullet Cooldown
+	shotCooldown_--;
+
+	worldTransform_.UpdateMatrix();
 }
 void Player::Attack() 
 { 
-	if (input_->TriggerKey(DIK_SPACE))
+	if (input_->TriggerKey(DIK_SPACE) && shotCooldown_ <= 0)
 	{
 		PlayerBullet* newBullet = new PlayerBullet();
-		const float kBulletSpeed = 1.0f;
 		Vector3 velocity(0, 0, kBulletSpeed);
 
 		velocity = GetWorldTransform3DReticle() - GetWorldPosition();
@@ -140,8 +169,9 @@ void Player::Attack()
 		}*/
 		newBullet->Initialize(model_, GetWorldPosition(), velocity);
 		//bullet_ = newBullet;
-		bullets_.push_back(newBullet);
-
+		//bullets_.push_back(newBullet);
+		gameScene_->AddPlayerBullet(newBullet);
+		shotCooldown_ = 120;
 		
 	}
 
@@ -195,7 +225,7 @@ Player::~Player() {
 	delete sprite2DReticle_;
 }
 
-void Player::OnCollision() {}
+void Player::OnCollision() { gameScene_->Die(); }
 
 void Player::DrawUI() 
 { 
@@ -208,4 +238,40 @@ Vector3 Player::GetWorldTransform3DReticle()
 	worldPos.y = worldTransform3DReticle_.matWorld_.m[3][1];
 	worldPos.z = worldTransform3DReticle_.matWorld_.m[3][2];
 	return worldPos; 
+}
+
+void Player::Move() 
+{
+	Vector3 move = {0, 0, 0};
+
+	const float kCharacterSpeed = 0.2f;
+
+	if (input_->PushKey(DIK_A)) {
+		move.x -= kCharacterSpeed;
+	} else if (input_->PushKey(DIK_D)) {
+		move.x += kCharacterSpeed;
+	}
+
+	if (input_->PushKey(DIK_SPACE)) {
+		// move.y += kCharacterSpeed;
+	} else if (input_->PushKey(DIK_LSHIFT)) {
+		move.y -= kCharacterSpeed;
+	}
+
+	if (input_->PushKey(DIK_S)) {
+		move.y -= kCharacterSpeed;
+	} else if (input_->PushKey(DIK_W)) {
+		move.y += kCharacterSpeed;
+	}
+
+	const float kRotSpeed = 0.02f;
+	if (input_->PushKey(DIK_Q)) {
+		worldTransform_.rotation_.y -= kRotSpeed;
+	} else if (input_->PushKey(DIK_E)) {
+		worldTransform_.rotation_.y += kRotSpeed;
+	}
+
+	worldTransform_.translation_.x += move.x;
+	worldTransform_.translation_.y += move.y;
+	worldTransform_.translation_.z += move.z;
 }

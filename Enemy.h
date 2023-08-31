@@ -38,7 +38,7 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
-	void Initialize(Model* model, const Vector3& position);
+	void Initialize(Model* model, const Vector3& position, const Vector3& scale, const float speed);
 	Enemy();
 	/// <summary>
 	/// 
@@ -99,17 +99,27 @@ public:
 	/// </summary>
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; };
 
+	float GetSpeed() { return speed_; };
+
+	void SetSpeed() { speed_ += 0.1f; };
+
 	void Reset();
 
 	void InitializeAttack();
 
 	void ClearList() { timedCalls_.clear(); };
 
+	void EnemyRespawn();
+
 private:
 	Phase phase_ = Phase::Approach;
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	uint32_t textureHandler_ = 0;
+	uint32_t redtext_ = 0;
+	uint32_t whitetext_ = 0;
+
+	float speed_ = 0.5f;
 
 	BaseEnemyState* state_;
 	EnemyBullet* bullet_ = nullptr;
@@ -125,6 +135,6 @@ private:
 	
 	
 public:	
-	static const int kFireInterval = 60;
+	static const int kFireInterval = 120;
 	int deathTimer_ = 300;
 };

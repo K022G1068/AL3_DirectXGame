@@ -5,6 +5,7 @@
 #include"WorldTransform.h"
 #include<cassert>
 #include"Collider.h"
+#include "ImGuiManager.h"
 class PlayerBullet : public Collider {
 public:
 	/// <summary>
@@ -28,14 +29,14 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
+	/// 
+	/// </summary>
+	void OnCollision() override;
+	/// <summary>
+	///
 	/// <returns></returns>
 	bool IsDead() const { return isDead_; };
 	/// <summary>
-	/// 
-	/// </summary>
-	void OnCollision() override{ isDead_ = true; };
-	/// <summary>
-	///
 	/// </summary>
 	/// <returns></returns>
 	const float GetRadius() { return radius_; };
@@ -46,6 +47,8 @@ private:
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	uint32_t textureHandler_ = 0;
+	uint32_t redtext_ = 0;
+	uint32_t whitetext_ = 0;
 	Vector3 velocity_;
 	static const int32_t kLifeTime = 60 * 5;
 	int32_t deathTimer_ = kLifeTime;

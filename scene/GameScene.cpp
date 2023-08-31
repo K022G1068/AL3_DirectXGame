@@ -23,6 +23,7 @@ GameScene::~GameScene() {
 		delete enemy;
 		enemy = nullptr;
 	}
+	delete boss_;
 }
 
 void GameScene::Initialize() {
@@ -32,16 +33,24 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 	textureHandle_ = TextureManager::Load("sample.png");
+	titleTextureHandle_ = TextureManager::Load("title.png");
 	sprite_ = Sprite::Create(textureHandle_, {50, 50});
+	titleScene_ = Sprite::Create(titleTextureHandle_, {0, 0});
 	model_ = Model::Create();
 	worldTransform_.Initialize();
 	viewProjection_.Initialize();
+
 	LoadEnemyPopData();
 	//Player Component
 	player_ = new Player();
+	boss_ = new Boss();
 	Vector3 playerPosition(0, -5.0f, 20.0f);
 	Vector3 railPosition(0, 0, -50.0f);
 	player_->Initialize(model_, textureHandle_, playerPosition);
+	player_->SetGameScene(this);
+	boss_->Initialize(model_, {0, 5.0f, 20.0f});
+	boss_->SetPlayer(player_);
+	boss_->SetGameScene(this);
 	
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 	skydome_ = new Skydome();
@@ -49,7 +58,8 @@ void GameScene::Initialize() {
 	skydome_->Initialize(modelSkydome_);
 	
 	//Enemy Component
-	AddEnemy({0, 3, 0}); 
+	//AddEnemy({0, 3, 0}); 
+
 	
 	//Rail camera
 	railCamera_ = new RailCamera();
@@ -61,62 +71,91 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	player_->Update(viewProjection_);
-	for (Enemy* enemy : enemies_)
+
+	if (scene_ == SCENE::Title)
 	{
-		if (enemy) {
-			enemy->Update();
+		if (input_->PushKey(DIK_SPACE))
+		{
+			scene_ = SCENE::Play;
 		}
 	}
-	
-#ifdef _DEBUG
-	if (input_->TriggerKey(DIK_R) && isDebugCameraActive_ == false) {
-		isDebugCameraActive_ = true;
-	}
-	else if (isDebugCameraActive_ && input_->TriggerKey(DIK_R))
+
+	if (scene_ == SCENE::Play)
 	{
-		isDebugCameraActive_ = false;
-	}
+		player_->Update(viewProjection_);
+		for (Enemy* enemy : enemies_) {
+			if (enemy) {
+				enemy->Update();
+			}
+		}
+
+		boss_->Update();
+
+#ifdef _DEBUG
+		if (input_->TriggerKey(DIK_R) && isDebugCameraActive_ == false) {
+			isDebugCameraActive_ = true;
+		} else if (isDebugCameraActive_ && input_->TriggerKey(DIK_R)) {
+			isDebugCameraActive_ = false;
+		}
 #endif // _DEBUG
 
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
-		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
-		viewProjection_.TransferMatrix();
+		if (isDebugCameraActive_) {
+			debugCamera_->Update();
+			viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+			viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+			viewProjection_.TransferMatrix();
+
+		} else {
+			// viewProjection_.UpdateMatrix();
+			railCamera_->Update();
+			viewProjection_.matView = railCamera_->GetViewProjection().matView;
+			viewProjection_.matProjection = railCamera_->GetViewProjection().matProjection;
+			viewProjection_.TransferMatrix();
+		}
+		skydome_->Update();
+
 		
-	} else {
-		//viewProjection_.UpdateMatrix();
-		railCamera_->Update();
-		viewProjection_.matView = railCamera_->GetViewProjection().matView;
-		viewProjection_.matProjection = railCamera_->GetViewProjection().matProjection;
-		viewProjection_.TransferMatrix();
+
+		UpdateEnemyPopCommands();
+		for (EnemyBullet* bullet : bullets_) {
+			bullet->Update();
+		}
+
+		bullets_.remove_if([](EnemyBullet* bullet) {
+			if (bullet->IsDead()) {
+				delete bullet;
+				return true;
+			}
+			return false;
+		});
+
+		for (PlayerBullet* bullet : playerBullets_) {
+			bullet->Update();
+		}
+
+		playerBullets_.remove_if([](PlayerBullet* bullet) {
+			if (bullet->IsDead()) {
+				delete bullet;
+				return true;
+			}
+			return false;
+		});
+
+		enemies_.remove_if([](Enemy* enemy) {
+			if (enemy->IsDead()) {
+				delete enemy;
+				return true;
+			}
+			return false;
+		});
+		CheckAllCollisions();
+
+
 	}
-	skydome_->Update();
 	
-	CheckAllCollisions();
 
-	UpdateEnemyPopCommands();
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Update();
-	}
-
-	bullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
-		}
-		return false;
-	});
-
-	enemies_.remove_if([](Enemy* enemy) {
-		if (enemy->IsDead()) {
-			delete enemy;
-			return true;
-		}
-		return false;
-	});
-
+	//Debug IMGUI
+	//
 }
 
 void GameScene::Draw() {
@@ -145,18 +184,25 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	player_->Draw(viewProjection_);
-	for (Enemy* enemy : enemies_)
-	{
-		enemy->Draw(viewProjection_);
-	}
 
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Draw(viewProjection_);
-	}
+	if (scene_ == SCENE::Play) {
+		player_->Draw(viewProjection_);
+		for (Enemy* enemy : enemies_) {
+			enemy->Draw(viewProjection_);
+		}
 
-	skydome_->Draw(viewProjection_);
-	railCamera_->DrawSpline();
+		for (EnemyBullet* bullet : bullets_) {
+			bullet->Draw(viewProjection_);
+		}
+		for (PlayerBullet* bullet : playerBullets_) {
+			bullet->Draw(viewProjection_);
+		}
+
+		boss_->Draw(viewProjection_);
+
+		skydome_->Draw(viewProjection_);
+		railCamera_->DrawSpline();
+	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
@@ -169,7 +215,11 @@ void GameScene::Draw() {
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
 	// スプライト描画後処理
-	player_->DrawUI();
+	if (scene_ == SCENE::Play) {
+		player_->DrawUI();
+	} else if (scene_ == SCENE::Title) {
+		titleScene_->Draw();
+	}
 	Sprite::PostDraw();
 
 #pragma endregion
@@ -178,18 +228,19 @@ void GameScene::Draw() {
 void GameScene::CheckAllCollisions() 
 {
 
-	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
+	//const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
 
 	std::list<Collider*> colliders_;
 	colliders_.push_back(player_);
+	colliders_.push_back(boss_);
 	for (Enemy* enemy : enemies_) {
 		colliders_.push_back(enemy);
 	}
 	for (EnemyBullet* bullet : bullets_) {
 		colliders_.push_back(bullet);
 	}
-	for (PlayerBullet* bullet : playerBullets) {
-		colliders_.push_back(bullet);
+	for (PlayerBullet* p_bullet : playerBullets_) {
+		colliders_.push_back(p_bullet);
 	}
 
 	std::list<Collider*>::iterator itrA = colliders_.begin();
@@ -209,7 +260,24 @@ void GameScene::CheckAllCollisions()
 			{
 				return;
 			}
+			/*ImGui::Text(
+			    "A Min x = %f, y = %f z = %f", A->GetBox().min.x, A->GetBox().min.y,
+			    A->GetBox().min.z);
+			ImGui::Text(
+			    "A max x = %f, y = %f z = %f", A->GetBox().max.x, A->GetBox().max.y,
+			    A->GetBox().max.z);
+
+			ImGui::Text(
+			    "B Min x = %f, y = %f z = %f", B->GetBox().min.x, B->GetBox().min.y,
+			    B->GetBox().min.z);
+			ImGui::Text(
+			    "B max x = %f, y = %f z = %f", B->GetBox().max.x, B->GetBox().max.y,
+			    B->GetBox().max.z);*/
 			CheckCollisionPair(A, B);
+			if (AABBCollisionPair(A, B)) {
+				A->OnCollision();
+				B->OnCollision();
+			}
 		}
 	}
 }
@@ -220,10 +288,14 @@ void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet)
 	bullets_.push_back(enemyBullet);
 }
 
-void GameScene::AddEnemy(Vector3 pos) 
-{ 
+void GameScene::AddPlayerBullet(PlayerBullet* playerBullet) 
+{
+	playerBullets_.push_back(playerBullet);
+}
+
+void GameScene::AddEnemy(Vector3 pos, Vector3 scale) { 
 	Enemy* obj = new Enemy();
-	obj->Initialize(model_, pos);
+	obj->Initialize(model_, pos, scale, enemySpeed_);
 	obj->SetPlayer(player_);
 	obj->SetGameScene(this);
 	obj->InitializeAttack();
@@ -277,7 +349,16 @@ void GameScene::UpdateEnemyPopCommands()
 			getline(line_stream, word, ',');
 			float z = (float)std::atof(word.c_str());
 
-			AddEnemy(Vector3(x, y, z));
+			getline(line_stream, word, ',');
+			float s_x = (float)std::atof(word.c_str());
+
+			getline(line_stream, word, ',');
+			float s_y = (float)std::atof(word.c_str());
+
+			getline(line_stream, word, ',');
+			float s_z = (float)std::atof(word.c_str());
+
+			AddEnemy(Vector3(x, y, z), Vector3(s_x, s_y, s_z));
 		}
 		else if (word.find("WAIT") == 0)
 		{
@@ -290,11 +371,30 @@ void GameScene::UpdateEnemyPopCommands()
 			break;	
 
 		}
+		else if (word.find("SPEED") == 0)
+		{
+			enemySpeed_ += 0.1f;
+		}
+
+		if (enemyPopCommands.peek() == EOF)
+		{
+			enemyPopCommands.clear();
+			enemyPopCommands.seekg(0);
+		}
 
 	}
 	
+}
 
-	
+void GameScene::Die() 
+{ 
+	scene_ = SCENE::Title;
+	enemies_.clear();
+	bullets_.clear();
+	playerBullets_.clear();
+	enemyPopCommands.seekg(0);
+	Vector3 playerPosition(0, -5.0f, 20.0f);
+	player_->SetPosition(playerPosition);
 }
 
 void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB) 
@@ -309,7 +409,18 @@ void GameScene::CheckCollisionPair(Collider* colliderA, Collider* colliderB)
 	{
 		colliderA->OnCollision();
 		colliderB->OnCollision();
-	}
+	}	
 
+}
+
+bool GameScene::AABBCollisionPair(Collider* colliderA, Collider* colliderB) 
+{
+	return (colliderA->GetBox().min.x <= colliderB->GetBox().max.x &&
+	        colliderA->GetBox().max.x >= colliderB->GetBox().min.x) &&
+	       (colliderA->GetBox().min.y <= colliderB->GetBox().max.y &&
+	        colliderA->GetBox().max.y >= colliderB->GetBox().min.y) &&
+	       (colliderA->GetBox().min.z <= colliderB->GetBox().max.z &&
+	        colliderA->GetBox().max.z >= colliderB->GetBox().min.z);
+	
 }
 

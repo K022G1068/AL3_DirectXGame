@@ -9,8 +9,7 @@
 #include<list>
 #include"Sprite.h"
 #include"Collider.h"
-
-
+class GameScene;
 class Player : public Collider{
 public:
 	/// <summary>
@@ -50,7 +49,7 @@ public:
 	/// 
 	/// </summary>
 	/// <returns></returns>
-	const std::list<PlayerBullet*>& GetBullets() { return bullets_; };
+	const std::list<PlayerBullet*>& GetBullets() const { return bullets_; };
 	/// <summary>
 	/// 
 	/// </summary>
@@ -63,6 +62,13 @@ public:
 
 	Vector3 GetWorldTransform3DReticle();
 
+	void Move();
+
+	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; };
+
+	void SetPosition(Vector3 pos) { worldTransform_.translation_ = pos; };
+
+	void SetSpeed() { kBulletSpeed += 0.1f; };
 
 private:
 	WorldTransform worldTransform_;
@@ -76,5 +82,8 @@ private:
 	//Reticle
 	Sprite* sprite2DReticle_ = nullptr;
 	POINT mousePos_ = {0, 0};
+	GameScene* gameScene_ = nullptr;
+	float kBulletSpeed = 1.0f;
+	int shotCooldown_ = 120;
 
 };

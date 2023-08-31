@@ -3,13 +3,17 @@
 #include"GameScene.h"
 #include <MathUtility.h>
 
-void Enemy::Initialize(Model* model, const Vector3& position) 
-{
+void Enemy::Initialize(
+    Model* model, const Vector3& position, const Vector3& scale, const float speed) {
 	assert(model);
 	model_ = model;
+	speed_ = speed;
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
-	textureHandler_ = TextureManager::Load("white1x1.png");
+	worldTransform_.scale_ = scale;
+	redtext_ = TextureManager::Load("red1x1.png");
+	whitetext_ = TextureManager::Load("white1x1.png");
+	textureHandler_ = whitetext_;
 	//ApproachInitialize();
 	SetAttribute(kCollisionAttributeEnemy);
 	SetMaskAttribute(kCollisionAttributePlayer);
@@ -31,6 +35,7 @@ Enemy::~Enemy()
 
 void Enemy::Update() 
 { 
+	textureHandler_ = whitetext_;
 	state_->Update(this);
 	if (--deathTimer_ <= 0) {
 		IsDead_ = true;
@@ -49,6 +54,8 @@ void Enemy::Update()
 	}
 
 	//Reset();
+	Vector3 pos = GetWorldPosition();
+	SetBox(pos, worldTransform_.scale_);
 
 	worldTransform_.UpdateMatrix(); 
 }
@@ -97,37 +104,41 @@ void Enemy::ApproachInitialize() {
 
 Vector3 Enemy::GetWorldPosition() {
 	Vector3 worldPos;
-	worldPos.x = worldTransform_.translation_.x;
-	worldPos.y = worldTransform_.translation_.y;
-	worldPos.z = worldTransform_.translation_.z;
-
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+	
 	return worldPos;
 }
 
-void Enemy::OnCollision() {}
+void Enemy::OnCollision() 
+{ textureHandler_ = redtext_; }
 
 
 void EnemyStateApproach::Update(Enemy* pEnemy)
 {
 	Vector3 move = pEnemy->getPos();
+	
 	move.x += 0.1f;
-	move.z -= 0.5f;
+	move.z -= pEnemy->GetSpeed();
 	//pEnemy->SetFireTimer(pEnemy->GetFireTimer() - 1);
 	pEnemy->setPos(move);
 	if (pEnemy->getPos().z < -70.0f) {
 		pEnemy->ClearList();
-		pEnemy->ChangeState(new EnemyStateLeave);
+		//pEnemy->ChangeState(new EnemyStateLeave);
 	}
 	
 }
 
 void Enemy::Reset() {
-	Fire();
-	timedCalls_.push_back(new TimedCall(std::bind(&Enemy::Reset, this), kFireInterval));
+	//Fire();
+	//timedCalls_.push_back(new TimedCall(std::bind(&Enemy::Reset, this), kFireInterval));
 }
 
 void Enemy::InitializeAttack() 
 { ApproachInitialize(); }
+
+void Enemy::EnemyRespawn() {}
 
 void EnemyStateLeave::Update(Enemy* pEnemy) 
 {

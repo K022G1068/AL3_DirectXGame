@@ -17,10 +17,16 @@
 #include <sstream>
 #include <fstream>
 #include "Collider.h"
+#include "Boss.h"
 
 /// <summary>
 /// ゲームシーン
 /// </summary>
+/// 
+enum SCENE {
+	Title,
+	Play,
+};
 class GameScene {
 
 public: // メンバ関数
@@ -58,7 +64,9 @@ public: // メンバ関数
 	/// <param name="enemyBullet"></param>
 	void AddEnemyBullet(EnemyBullet* enemyBullet);
 
-	void AddEnemy(Vector3 pos);
+	void AddPlayerBullet(PlayerBullet* playerBullet);
+
+	void AddEnemy(Vector3 pos, Vector3 scale);
 
 	//Reading CSV
 	void LoadEnemyPopData();
@@ -66,7 +74,11 @@ public: // メンバ関数
 	//Update enemy state
 	void UpdateEnemyPopCommands();
 
+	void Die();
+
 	void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
+
+	bool AABBCollisionPair(Collider* colliderA, Collider* colliderB);
 
 private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
@@ -74,7 +86,9 @@ private: // メンバ変数
 	Audio* audio_ = nullptr;
 
 	uint32_t textureHandle_ = 0;
+	uint32_t titleTextureHandle_ = 0;
 	Sprite* sprite_ = nullptr;
+	Sprite* titleScene_ = nullptr;
 	Model* model_ = nullptr;
 	Model* modelSkydome_ = nullptr;
 	Skydome* skydome_ = nullptr;
@@ -84,15 +98,20 @@ private: // メンバ変数
 	DebugCamera* debugCamera_ = nullptr;
 
 	Player* player_ = nullptr;
+	Boss* boss_ = nullptr;
 
 	std::list<Enemy*> enemies_;
 	std::list<EnemyBullet*> bullets_;
+	std::list<PlayerBullet*> playerBullets_;
 	RailCamera* railCamera_ = nullptr;
 
 	std::stringstream enemyPopCommands;
 
 	bool wait = false;
 	int32_t waitTimer = 0;
+	int scene_ = SCENE::Title;
+
+	float enemySpeed_ = 0.5f;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
